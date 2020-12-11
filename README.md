@@ -4,9 +4,9 @@ Writer : Masahiro Mitsuhara
 Maintainer: [Tsubasa Hirakawa](https://thirakawa.github.io)
 
 ## Abstract
-This repository is a re-implementation of the Chainer implementation of Attention Branch Network for CelebA with the PyTorch.
-Please note that the model structure is different from the [Chainer implementation version](https://github.com/machine-perception-robotics-group/ABN_CelebA) because this is a re-implementation with PyTorch after repeated experiments.
-If you want to re-produce the paper, please refer to the [Chainer implementation version](https://github.com/machine-perception-robotics-group/ABN_CelebA).
+This repository is PyTorch implementation of Attention Branch Network for CelebA (original implementation is Chainer).
+Please note that the model structure is different from the [Chainer implementation version](https://github.com/machine-perception-robotics-group/ABN_CelebA) because we conducted further experiments and we implemented obtained better model by PyTorch.
+If you want to use or re-produce the paper, please refer to the [Chainer implementation version](https://github.com/machine-perception-robotics-group/ABN_CelebA).
 
 <!-- このリポジトリは，CelebAによるAttention Branch NetworkのChainer実装をpytorch実装で再現したものです．-->
 <!--こちらは，実験を重ねてpytorchで再実装したものなので，モデル構造がChainer実装版と異なることに注意してください．-->
@@ -21,8 +21,10 @@ and,
 
 ## Enviroment
 Our source code is based on [https://github.com/machine-perception-robotics-group/attention_branch_network](https://github.com/machine-perception-robotics-group/attention_branch_network) implemented with PyTorch.
-Our source code corresponds to the latest PyTorch version.
 
+We confirmed the following environments:
+
+### Prepare environment by yourselves
 Requirements of PyTorch version are as follows:
 <!--我々のソースコードは，最新のPyTorchのバージョンに対応しています．-->
 - PyTorch : 1.1.0+
@@ -30,8 +32,7 @@ Requirements of PyTorch version are as follows:
 
 ### Docker
 We prepared Docker environments. You quickly start to use Docker and run scripts.
-For more details, please see [docker/README.md](https://github.com/machine-perception-robotics-group/attention_branch_network/blob/master/docker/README.md).
-This docker environment is the same docker environment as GitHub of [Attention Branch Network](https://github.com/machine-perception-robotics-group/attention_branch_network/tree/master/docker).
+For more details, please see [docker/README.md](https://github.com/machine-perception-robotics-group/attention_branch_network/blob/master/docker/README.md), which is the same as [Attention Branch Network](https://github.com/machine-perception-robotics-group/attention_branch_network/tree/master/docker).
 Please note on the versions of PyTorch and torchvision.
 
 PyTorch version of this docker environments are as follows:
