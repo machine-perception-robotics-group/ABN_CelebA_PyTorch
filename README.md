@@ -33,9 +33,8 @@ Requirements of PyTorch version are as follows:
 ### Docker
 We prepared Docker environments. You quickly start to use Docker and run scripts.
 For more details, please see [docker/README.md](https://github.com/machine-perception-robotics-group/attention_branch_network/blob/master/docker/README.md), which is the same as [Attention Branch Network](https://github.com/machine-perception-robotics-group/attention_branch_network/tree/master/docker).
-Please note on the versions of PyTorch and torchvision.
 
-PyTorch version of this docker environments are as follows:
+PyTorch version of this docker environments are as follows (Please note the versions of PyTorch and torchvision):
 <!--このDocker環境は，[Attention Branch Network](https://github.com/machine-perception-robotics-group/attention_branch_network/tree/master/docker)のGitHubと同様のDocker環境です．-->
 <!--Pytorchとtorchvisionのバージョンに注視してください．-->
 - PyTorch : 0.4.0
