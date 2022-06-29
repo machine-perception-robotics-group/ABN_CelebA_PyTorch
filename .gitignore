@@ -1,0 +1,8 @@
+
+*.pyc
+__pycache__/
+
+trash/
+
+data/celeba
+data/celeba/
