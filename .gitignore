@@ -4,5 +4,11 @@ __pycache__/
 
 trash/
 
+script_abci/
+
 data/celeba
 data/celeba/
+
+runs/
+runs_old/
+runs_unused/

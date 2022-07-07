@@ -30,17 +30,18 @@ In our program, we use `torchvision.datasets.CelebA()` as a dataset class for Ce
 `torchvision.datasets.CelebA()` needs to prepare CelebA dataset as follows:
 
 ```
-[your directory]/
-  |- celeba/
-      |- identity_CelebA.txt
-      |- list_attr_celeba.txt
-      |- list_bbox_celeba.txt
-      |- list_eval_partition.txt
-      |- list_landmarks_align_celeba.txt
-      |- list_landmarks_celeba.txt
-      |- img_align_celeba/
-          |- 000000.jpg
-          |- 000001.jpg
-          |- 000002.jpg
-          |- ...
+foo/
+  |- bar/
+      |- celeba/
+          |- identity_CelebA.txt
+          |- list_attr_celeba.txt
+          |- list_bbox_celeba.txt
+          |- list_eval_partition.txt
+          |- list_landmarks_align_celeba.txt
+          |- list_landmarks_celeba.txt
+          |- img_align_celeba/
+              |- 000000.jpg
+              |- 000001.jpg
+              |- 000002.jpg
+              |- ...
 ```
