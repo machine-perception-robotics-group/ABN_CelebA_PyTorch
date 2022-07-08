@@ -52,6 +52,15 @@ CELEBA_ATTRIBUTE_NAMES = (
 )
 
 
+### mean and std of RGB values on train dataset (order: R, G, B)
+## In case of RGB value range: [0, 255]
+# CELEBA_TRAIN_RGB_MEAN = (129.11807, 108.58144, 97.71261)
+# CELEBA_TRAIN_RGB_STD = (38.48049, 37.01807, 37.42858)
+## In case of RGB value range: [0, 1]
+CELEBA_TRAIN_RGB_MEAN = (0.50634545, 0.42580956, 0.38318673)
+CELEBA_TRAIN_RGB_STD = (0.1509039, 0.1451689, 0.14677875)
+
+
 # NOTE:
 # we use torchvision.datasets.CelebA and do not implement Dataset class by ourselves.
 # Therefore, please see official document and source code.

@@ -12,3 +12,5 @@ data/celeba/
 runs/
 runs_old/
 runs_unused/
+runs_mistake/
+runs_unnormalized/

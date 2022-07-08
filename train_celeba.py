@@ -22,7 +22,7 @@ from torch.utils.tensorboard.writer import SummaryWriter
 from torchvision.datasets import CelebA
 from torchvision import transforms
 
-from mtabn.datasets.celeba import CELEBA_NUM_CLASSES, CELEBA_ATTRIBUTE_NAMES
+from mtabn.datasets.celeba import CELEBA_NUM_CLASSES, CELEBA_ATTRIBUTE_NAMES, CELEBA_TRAIN_RGB_MEAN, CELEBA_TRAIN_RGB_STD
 from mtabn.models import load_model, MODEL_NAMES
 from mtabn.metrics import MultitaskConfusionMatrix
 from mtabn.utils import load_checkpoint, save_checkpoint, save_args, load_args
@@ -99,13 +99,13 @@ def main():
         transforms.RandomResizedCrop(224),
         transforms.RandomHorizontalFlip(),
         transforms.ToTensor(),
-        transforms.Normalize(mean=[1., 1., 1.], std=[1., 1., 1.])
+        transforms.Normalize(mean=CELEBA_TRAIN_RGB_MEAN, std=CELEBA_TRAIN_RGB_STD)
     ])
     val_trans = transforms.Compose([
            transforms.Resize(256),
            transforms.CenterCrop(224),
            transforms.ToTensor(),
-           transforms.Normalize(mean=[1., 1., 1.], std=[1., 1., 1.])
+           transforms.Normalize(mean=CELEBA_TRAIN_RGB_MEAN, std=CELEBA_TRAIN_RGB_STD)
     ])
 
     train_dataset = CelebA(root=args.data_root, split='train', target_type='attr', transform=train_trans, download=False)
