@@ -155,7 +155,9 @@ def evaluation(model, data_loader, result_dir_name, args, is_abn):
                 for img_index in range(image.shape[0]):
                     save_multi_task_attention_map(
                         image[img_index], attention_map[img_index],
-                        os.path.join(result_dir, "%06d.jpg" % image_counter), attr_name_list=CELEBA_ATTRIBUTE_NAMES
+                        os.path.join(result_dir, "%06d.jpg" % image_counter),
+                        attr_name_list=CELEBA_ATTRIBUTE_NAMES,
+                        rgb_mean=CELEBA_TRAIN_RGB_MEAN, rgb_std=CELEBA_TRAIN_RGB_STD
                     )
                     image_counter += 1
 

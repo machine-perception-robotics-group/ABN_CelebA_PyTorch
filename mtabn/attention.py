@@ -11,11 +11,18 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 
-def save_multi_task_attention_map(image, att_map, save_name, attr_name_list=None):
+def denormalize(image, mean, std):
+    image[0, :, :] = (image[0, :, :] * std[0]) + mean[0]
+    image[1, :, :] = (image[1, :, :] * std[1]) + mean[1]
+    image[2, :, :] = (image[2, :, :] * std[2]) + mean[2]
+    return image
+
+
+def save_multi_task_attention_map(image, att_map, save_name, attr_name_list, rgb_mean=[1., 1., 1.], rgb_std=[1., 1., 1.]):
     ### expected inputs, image = np.array, att_map = np.array
 
     # convert image tensor to numpy array (uint8)
-    image = ((image * 1.0) + 1.0) * 255
+    image = denormalize(image, rgb_mean, rgb_std)
     image = image.transpose(1, 2, 0)
     image = image.astype(np.uint8)
     H, W, C = image.shape
