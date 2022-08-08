@@ -8,11 +8,12 @@ from .resnet_mtabn_v2 import mtabn_v2_resnet18, mtabn_v2_resnet34, mtabn_v2_resn
 from torchvision.models import resnet18, resnet34, resnet50, resnet101, resnet152
 
 
-MODEL_NAMES = (
-    'resnet18', 'resnet34', 'resnet50', 'resnet101', 'resnet152',
-    'mtabn_v1_resnet18', 'mtabn_v1_resnet34', 'mtabn_v1_resnet50', 'mtabn_v1_resnet101', 'mtabn_v1_resnet152',
-    'mtabn_v2_resnet18', 'mtabn_v2_resnet34', 'mtabn_v2_resnet50', 'mtabn_v2_resnet101', 'mtabn_v2_resnet152'
-)
+MODEL_NAMES_RESNET = ('resnet18', 'resnet34', 'resnet50', 'resnet101', 'resnet152')
+MODEL_NAMES_MTABN_V1_RESNET = ('mtabn_v1_resnet18', 'mtabn_v1_resnet34', 'mtabn_v1_resnet50', 'mtabn_v1_resnet101', 'mtabn_v1_resnet152')
+MODEL_NAMES_MTABN_V2_RESNET = ('mtabn_v2_resnet18', 'mtabn_v2_resnet34', 'mtabn_v2_resnet50', 'mtabn_v2_resnet101', 'mtabn_v2_resnet152')
+
+
+MODEL_NAMES = MODEL_NAMES_RESNET + MODEL_NAMES_MTABN_V1_RESNET + MODEL_NAMES_MTABN_V2_RESNET
 
 
 def load_model(model_name, num_classes, residual_attention, pretrained=True):

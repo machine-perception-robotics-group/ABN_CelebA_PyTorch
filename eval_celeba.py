@@ -22,10 +22,10 @@ from torch.utils.tensorboard.writer import SummaryWriter
 from torchvision.datasets import CelebA
 from torchvision import transforms
 
-from mtabn.datasets.celeba import CELEBA_NUM_CLASSES, CELEBA_ATTRIBUTE_NAMES, CELEBA_TRAIN_RGB_MEAN, CELEBA_TRAIN_RGB_STD
+from mtabn.datasets.celeba import CELEBA_NUM_CLASSES, CELEBA_ATTRIBUTE_NAMES, CELEBA_TRANS_EVAL
 from mtabn.models import load_model, MODEL_NAMES
 from mtabn.metrics import MultitaskConfusionMatrix
-from mtabn.attention import save_multi_task_attention_map
+from mtabn.attention import save_celeba_attention_map
 from mtabn.utils import load_checkpoint, load_args
 
 
@@ -51,8 +51,11 @@ def parser():
     arg_parser.add_argument('--no_eval_test', action='store_false', help='do not evaluate test data')
     arg_parser.add_argument('--batch_size', type=int, default=32, help='mini-batch size for evaluation')
     arg_parser.add_argument('--num_workers', type=int, default=32, help='the number of multiprocess workers for data loader')
-    arg_parser.add_argument('--save_attention', action='store_true', help='save attention maps')
 
+    ### attention map settings
+    arg_parser.add_argument('--save_attention', action='store_true', help='save attention maps')
+    arg_parser.add_argument('--attention_type', type=str, default='pos', choices=('pos', 'neg', 'both'), help='attention map type for visualization')
+    
     ### GPU settings
     arg_parser.add_argument('--gpu_id', type=str, default='0', help='id(s) for CUDA_VISIBLE_DEVICES')
 
@@ -74,21 +77,9 @@ def main():
     # load train args #####################################
     train_args = load_args(os.path.join(args.logdir, args.arg_file))
 
-    # dataset #############################################
+    # dataset (only settings) #############################
     print("load dataset")
-    trans = transforms.Compose([
-           transforms.Resize(256),
-           transforms.CenterCrop(224),
-           transforms.ToTensor(),
-           transforms.Normalize(mean=CELEBA_TRAIN_RGB_MEAN, std=CELEBA_TRAIN_RGB_STD)
-    ])
-    train_dataset = CelebA(root=args.data_root, split='train', target_type='attr', transform=trans, download=False)
-    val_dataset   = CelebA(root=args.data_root, split='valid', target_type='attr', transform=trans, download=False)
-    test_dataset  = CelebA(root=args.data_root, split='test', target_type='attr', transform=trans, download=False)
     kwargs = {'num_workers': args.num_workers, 'pin_memory': False}
-    train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=False, **kwargs)
-    val_loader   = DataLoader(val_dataset, batch_size=args.batch_size, shuffle=False, **kwargs)
-    test_loader  = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False, **kwargs)
 
     # network model #######################################
     _is_abn = True if "mtabn_" in train_args['model'] else False
@@ -106,18 +97,24 @@ def main():
     #######################################################
     ### train data
     if args.no_eval_train:
-        print("evaluate train data ...")
+        print("\nevaluate train data ...")
+        train_dataset = CelebA(root=args.data_root, split='train', target_type='attr', transform=CELEBA_TRANS_EVAL, download=False)
+        train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=False, **kwargs)
         evaluation(model, train_loader, RESULT_DIR_TRAIN, args, _is_abn)
 
     ### validation data
     if args.no_eval_val:
-        print("evaluate validation data ...")
+        print("\nevaluate validation data ...")
+        val_dataset   = CelebA(root=args.data_root, split='valid', target_type='attr', transform=CELEBA_TRANS_EVAL, download=False)
+        val_loader   = DataLoader(val_dataset, batch_size=args.batch_size, shuffle=False, **kwargs)
         evaluation(model, val_loader, RESULT_DIR_VAL, args, _is_abn)
 
     ### test data
     if args.no_eval_test:
-        print("evaluate test data ...")
-        evaluation(model, test_loader, RESULT_DIR_TRAIN, args, _is_abn)
+        print("\nevaluate test data ...")
+        test_dataset  = CelebA(root=args.data_root, split='test', target_type='attr', transform=CELEBA_TRANS_EVAL, download=False)
+        test_loader  = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False, **kwargs)
+        evaluation(model, test_loader, RESULT_DIR_TEST, args, _is_abn)
     #######################################################
     # the end of evaluation
     #######################################################
@@ -144,20 +141,18 @@ def evaluation(model, data_loader, result_dir_name, args, is_abn):
             # binarize output
             label = label.data
             if is_abn:
-                mt_conf_mat_per.update(label_trues=label, label_preds=output[0], use_cuda=True)
+                mt_conf_mat_per.update(label_trues=label, label_preds=torch.argmax(output[0], dim=1), use_cuda=True)
                 mt_conf_mat_att.update(label_trues=label, label_preds=output[1], use_cuda=True)
             else:
                 mt_conf_mat_per.update(label_trues=label, label_preds=torch.sigmoid(output), use_cuda=True)
 
             if is_abn and args.save_attention:
-                image = image.cpu().data.numpy()              # [batch, channel, height, width]
-                attention_map = output[2].cpu().data.numpy()  # [batch, attribute, height, width]
-                for img_index in range(image.shape[0]):
-                    save_multi_task_attention_map(
-                        image[img_index], attention_map[img_index],
-                        os.path.join(result_dir, "%06d.jpg" % image_counter),
-                        attr_name_list=CELEBA_ATTRIBUTE_NAMES,
-                        rgb_mean=CELEBA_TRAIN_RGB_MEAN, rgb_std=CELEBA_TRAIN_RGB_STD
+                image = image.cpu().data.numpy()         # [batch, channel, height, width]
+                att_maps = output[2].cpu().data.numpy()  # [batch, attribute, height, width]
+                for _i_idx in range(image.shape[0]):
+                    save_celeba_attention_map(
+                        image[_i_idx], att_maps[_i_idx], label[_i_idx], torch.argmax(output[0], dim=1)[_i_idx], output[1][_i_idx],
+                        os.path.join(result_dir, "%06d.jpg" % image_counter), att_type=args.attention_type
                     )
                     image_counter += 1
 

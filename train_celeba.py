@@ -12,6 +12,9 @@ import json
 from time import time
 from argparse import ArgumentParser
 
+import random
+import numpy as np
+
 import torch
 import torch.nn as nn
 import torch.backends.cudnn as cudnn
@@ -22,14 +25,14 @@ from torch.utils.tensorboard.writer import SummaryWriter
 from torchvision.datasets import CelebA
 from torchvision import transforms
 
-from mtabn.datasets.celeba import CELEBA_NUM_CLASSES, CELEBA_ATTRIBUTE_NAMES, CELEBA_TRAIN_RGB_MEAN, CELEBA_TRAIN_RGB_STD
+from mtabn.datasets.celeba import CELEBA_TRANS_TRAIN, CELEBA_TRANS_EVAL, CELEBA_NUM_CLASSES, CELEBA_ATTRIBUTE_NAMES
 from mtabn.models import load_model, MODEL_NAMES
 from mtabn.metrics import MultitaskConfusionMatrix
 from mtabn.utils import load_checkpoint, save_checkpoint, save_args, load_args
 
 
-LOG_STEP = 200
-CHECKPOINT_STEP = 10
+LOG_STEP = 500
+CHECKPOINT_STEP = 1
 
 
 def parser():
@@ -45,10 +48,10 @@ def parser():
 
     ### traininig settings
     arg_parser.add_argument('--logdir', type=str, required=True, help='directory for storing train log and checkpoints')
-    arg_parser.add_argument('--batch_size', type=int, default=32, help='mini-batch size')
-    arg_parser.add_argument('--epochs', type=int, default=100, help='the number of training epochs')
+    arg_parser.add_argument('--batch_size', type=int, default=8, help='mini-batch size')
+    arg_parser.add_argument('--epochs', type=int, default=10, help='the number of training epochs')
     arg_parser.add_argument('--lr', type=float, default=0.01, help='initial learning rate')
-    arg_parser.add_argument('--lr_steps', type=int, nargs='+', default=[50, 75], help='epochs to decrease learning rate')
+    arg_parser.add_argument('--lr_steps', type=int, nargs='+', default=[4, 8], help='epochs to decrease learning rate')
     arg_parser.add_argument('--momentum', type=float, default=0.9, help='momentum of SGD optimizer')
     arg_parser.add_argument('--wd', type=float, default=1e-4, help='weight decay of SGD optimizer')
     arg_parser.add_argument('--use_nesterov', action='store_true', help='use nesterov accelerated SGD')
@@ -56,6 +59,9 @@ def parser():
 
     ### resume settings
     arg_parser.add_argument('--resume', type=str, default=None, help='filename of checkpoint for resuming the training')
+
+    ### random seed settings
+    arg_parser.add_argument('--seed', type=int, default=1701, help='random seed')
 
     ### GPU settings
     arg_parser.add_argument('--gpu_id', type=str, default='0', help='id(s) for CUDA_VISIBLE_DEVICES')
@@ -79,8 +85,18 @@ def parser():
         args.momentum     = _resume_args['momentum']
         args.wd           = _resume_args['wd']
         args.use_nesterov = _resume_args['use_nesterov']
+        args.seed         = _resume_args['seed']
 
     return args
+
+
+def fix_random_seed(seed):
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.use_deterministic_algorithms = True
 
 
 def main():
@@ -93,23 +109,15 @@ def main():
     print("use cuda:", use_cuda)
     assert use_cuda, "This training script needs CUDA (GPU)."
 
+    # set random seed (optional) ##########################
+    if args.seed is not None:
+        fix_random_seed(args.seed)
+
     # dataset #############################################
     print("load dataset")
-    train_trans = transforms.Compose([
-        transforms.RandomResizedCrop(224),
-        transforms.RandomHorizontalFlip(),
-        transforms.ToTensor(),
-        transforms.Normalize(mean=CELEBA_TRAIN_RGB_MEAN, std=CELEBA_TRAIN_RGB_STD)
-    ])
-    val_trans = transforms.Compose([
-           transforms.Resize(256),
-           transforms.CenterCrop(224),
-           transforms.ToTensor(),
-           transforms.Normalize(mean=CELEBA_TRAIN_RGB_MEAN, std=CELEBA_TRAIN_RGB_STD)
-    ])
 
-    train_dataset = CelebA(root=args.data_root, split='train', target_type='attr', transform=train_trans, download=False)
-    val_dataset = CelebA(root=args.data_root, split='valid', target_type='attr', transform=val_trans, download=False)
+    train_dataset = CelebA(root=args.data_root, split='train', target_type='attr', transform=CELEBA_TRANS_TRAIN, download=False)
+    val_dataset = CelebA(root=args.data_root, split='valid', target_type='attr', transform=CELEBA_TRANS_EVAL, download=False)
 
     kwargs = {'num_workers': args.num_workers, 'pin_memory': False}
     train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, **kwargs)
@@ -121,7 +129,8 @@ def main():
         model_name=args.model, num_classes=CELEBA_NUM_CLASSES,
         residual_attention=args.residual_attention, pretrained=args.pretrained
     )
-    criterion = nn.BCELoss()
+    criterion_bce = nn.BCEWithLogitsLoss()
+    criterion_ce = nn.CrossEntropyLoss()
 
     # optimizer ###########################################
     optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum, weight_decay=args.wd, nesterov=args.use_nesterov)
@@ -129,7 +138,8 @@ def main():
 
     # CPU or GPU
     model = nn.DataParallel(model).cuda()
-    criterion = criterion.cuda()
+    criterion_bce = criterion_bce.cuda()
+    criterion_ce = criterion_ce.cuda()
     cudnn.benchmark = True
 
     initial_epoch = 1
@@ -165,11 +175,11 @@ def main():
             output = model(image)
 
             if _is_abn:
-                loss_per = criterion(output[0], label)
-                loss_att = criterion(output[1], label)
+                loss_per = criterion_ce(output[0], label.to(torch.long))
+                loss_att = criterion_bce(output[1], label)
                 loss = loss_per + loss_att
             else:
-                loss = criterion(torch.sigmoid(output), label)
+                loss = criterion_bce(output, label)
 
             model.zero_grad()
             loss.backward()
@@ -203,8 +213,8 @@ def main():
                 # binarize output
                 label = label.data
                 if _is_abn:
-                    mt_conf_mat_per.update(label_trues=label, label_preds=output[0], use_cuda=True)
-                    mt_conf_mat_att.update(label_trues=label, label_preds=output[1], use_cuda=True)
+                    mt_conf_mat_per.update(label_trues=label, label_preds=torch.argmax(output[0], dim=1), use_cuda=True)
+                    mt_conf_mat_att.update(label_trues=label, label_preds=torch.sigmoid(output[1]), use_cuda=True)
                 else:
                     mt_conf_mat_per.update(label_trues=label, label_preds=torch.sigmoid(output), use_cuda=True)
 

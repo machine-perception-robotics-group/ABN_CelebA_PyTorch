@@ -121,7 +121,7 @@ class MtABNResNetV2(nn.Module):
 
         # perception branch -----------
         self.layer4 = self._make_layer(block, 512, layers[3], stride=2, down_size=True)
-        _output_per = [nn.Linear(512*block.expansion, 1) for _ in range(num_classes)]
+        _output_per = [nn.Linear(512*block.expansion, 2) for _ in range(num_classes)]
         self.output_per = nn.ModuleList(_output_per)
 
         # attention branch ------------
@@ -132,7 +132,6 @@ class MtABNResNetV2(nn.Module):
 
         # pooling and activation ------
         self.global_avg_pool = nn.AdaptiveAvgPool2d(1)
-        self.sigmoid = nn.Sigmoid()
 
         # initialize weights ----------
         for m in self.modules():
@@ -157,13 +156,13 @@ class MtABNResNetV2(nn.Module):
         x_att = self.layer4_att(x)
         x_att = self.att_conv(x_att)
         x_att = self.depth_conv(x_att)
-        # output of att. branch
-        out_att = self.global_avg_pool(x_att)
-        out_att = self.sigmoid(out_att)
-        out_att = out_att.view(out_att.size(0), -1)
 
         # attention map [batch, num_classes, 14, 14]
-        attention_map = self.sigmoid(x_att)
+        attention_map = x_att
+
+        # output of att. branch
+        out_att = self.global_avg_pool(x_att)
+        out_att = out_att.view(out_att.size(0), -1)
 
         # perception branch -----------
         out_per = []
@@ -181,10 +180,9 @@ class MtABNResNetV2(nn.Module):
             x_per = self.global_avg_pool(x_per)
             x_per = x_per.view(x_per.size(0), -1)
             x_per = self.output_per[i](x_per)
-            x_per = self.sigmoid(x_per)
             out_per.append(x_per.squeeze())
 
-        out_per = torch.stack(out_per).permute(1, 0)
+        out_per = torch.stack(out_per).permute(1, 2, 0)
 
         return out_per, out_att, attention_map
 
@@ -258,14 +256,16 @@ def mtabn_v2_resnet152(pretrained=False, **kwargs):
 if __name__ == '__main__':
 
     ### CelebA setting
+    batch_size = 5
     n_class = 40
     image_size = 224
 
     print("debug ...")
+    print("    batch size:", batch_size)
     print("    number of classes:", n_class)
     print("    image size:", image_size)
 
-    input = torch.zeros([2, 3, 224, 224], dtype=torch.float32)
+    input = torch.zeros([batch_size, 3, 224, 224], dtype=torch.float32)
 
     model18 = mtabn_v2_resnet18(pretrained=True, num_classes=n_class, residual_attention=True)
     output18 = model18(input)
