@@ -99,7 +99,7 @@ We show examples of each attention type.
 ---
 ## 4. Pre-trained model
 
-TBA
+## V1 (ResNet-101, NO Residual Attention, Fine-tuning)
 
 ---
 ## 5. Related Links
