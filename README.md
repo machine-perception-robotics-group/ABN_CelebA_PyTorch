@@ -99,7 +99,11 @@ We show examples of each attention type.
 ---
 ## 4. Pre-trained model
 
-## V1 (ResNet-101, NO Residual Attention, Fine-tuning)
+We publish pre-trained models.
+Please download from the following link.
+
+* [V1, ResNet-101, NO residual attention, fine-tuning (reproducing original Chainer model)](https://drive.google.com/file/d/1U3edI1ml88akuikKFmz4cYGSR5MOdtmt/view?usp=sharing)
+
 
 ---
 ## 5. Related Links
