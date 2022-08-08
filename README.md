@@ -1,4 +1,4 @@
-# Attention Branch Network for Multitask Learning with PyTorch
+# Attention Branch Network for CelebA with PyTorch Implementation
 
 Writer : Masahiro Mitsuhara
 
