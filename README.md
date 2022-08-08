@@ -12,7 +12,7 @@ In this repository, we use attribute classification task on [CelebA dataset](htt
 Please note that the model structure is different from the [original Chainer implementation](https://github.com/machine-perception-robotics-group/ABN_CelebA) because we conducted further experiments and we seek better models by PyTorch.
 If you want to use or re-produce the original ABN paper at CVPR, please use [the original Chainer implementation](https://github.com/machine-perception-robotics-group/ABN_CelebA).
 
-![examples](./figure/example.png)
+![examples](./figure/att_type_pos.jpg)
 
 ### Change Log
 * 09 Jun 2019: (different repository) The first release of Multitask ABN implemented by Chainer. You can find [here](https://github.com/machine-perception-robotics-group/ABN_CelebA).
@@ -72,6 +72,29 @@ We can choose network models as follows:
 * `--residual_attention` (ABN only): use residual attention mechanism. The differences are as follows:
   * No residual attention: $f_c'(x_i) = M(x_i) \cdot g_c(x_i)$
   * Residual attention: $f_c'(x_i) = (1 + M(x_i)) \cdot g_c(x_i)$
+
+
+### Visalization of attention maps
+
+In `eval_celeba.py`, we prepare the following option for the type of attention map visualization.
+
+* `--attention_type [pos/neg/both]`: The type of attention maps.
+  * `pos` : Visualize only positive values.
+  * `neg` : Visualize only negative values.
+  * `both`: Visualize both of positive and negative values.
+
+We show examples of each attention type.
+
+<p align="center">
+  <em>pos (only positive values)</em><br>
+  <img src="./figure/att_type_pos.jpg" width="640px" alt>
+  <br>
+  <em>neg (only negative values)</em><br>
+  <img src="./figure/att_type_neg.jpg" width="640px" alt>
+  <br>
+  <em>both (both positive and negative values)</em><br>
+  <img src="./figure/att_type_both.jpg" width="640px" alt>
+</p>
 
 ---
 ## 4. Pre-trained model

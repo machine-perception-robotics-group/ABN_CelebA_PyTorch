@@ -14,3 +14,8 @@ runs_old/
 runs_unused/
 runs_mistake/
 runs_unnormalized/
+runs_reproduce/
+
+mtabn/datasets/figure
+
+memo.txt
