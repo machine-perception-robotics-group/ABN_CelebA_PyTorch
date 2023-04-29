@@ -10,7 +10,8 @@ fi
 
 
 # select docker image
-imagename="cumprg/mtlabn:1.11.0"
+# imagename="cumprg/mtlabn:1.11.0"
+imagename="cumprg/mtlabn:2.1.0"
 
 
 echo "run docker ..."
@@ -32,5 +33,5 @@ fi
 
 # run
 docker run --gpus all -ti --rm -u $(id -u):$(id -g) \
-        --ipc=host --name=${1} ${mounts} \
+        --ipc=host --name=${1} --hostname=${1} ${mounts} \
         ${imagename}
