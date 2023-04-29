@@ -8,7 +8,6 @@ train_celeba.py
 
 
 import os
-import json
 from time import time
 from argparse import ArgumentParser
 
@@ -23,7 +22,6 @@ from torch.utils.data import DataLoader
 from torch.utils.tensorboard.writer import SummaryWriter
 
 from torchvision.datasets import CelebA
-from torchvision import transforms
 
 from mtabn.datasets.celeba import CELEBA_TRANS_TRAIN, CELEBA_TRANS_EVAL, CELEBA_NUM_CLASSES, CELEBA_ATTRIBUTE_NAMES
 from mtabn.models import load_model, MODEL_NAMES
@@ -55,7 +53,7 @@ def parser():
     arg_parser.add_argument('--momentum', type=float, default=0.9, help='momentum of SGD optimizer')
     arg_parser.add_argument('--wd', type=float, default=1e-4, help='weight decay of SGD optimizer')
     arg_parser.add_argument('--use_nesterov', action='store_true', help='use nesterov accelerated SGD')
-    arg_parser.add_argument('--num_workers', type=int, default=32, help='the number of multiprocess workers for data loader')
+    arg_parser.add_argument('--num_workers', type=int, default=8, help='the number of multiprocess workers for data loader')
 
     ### resume settings
     arg_parser.add_argument('--resume', type=str, default=None, help='filename of checkpoint for resuming the training')

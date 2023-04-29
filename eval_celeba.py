@@ -9,21 +9,17 @@ eval_celeba.py
 
 import os
 import json
-from time import time
 from argparse import ArgumentParser
 
 import torch
 import torch.nn as nn
 import torch.backends.cudnn as cudnn
-import torch.optim as optim
 from torch.utils.data import DataLoader
-from torch.utils.tensorboard.writer import SummaryWriter
 
 from torchvision.datasets import CelebA
-from torchvision import transforms
 
 from mtabn.datasets.celeba import CELEBA_NUM_CLASSES, CELEBA_ATTRIBUTE_NAMES, CELEBA_TRANS_EVAL
-from mtabn.models import load_model, MODEL_NAMES
+from mtabn.models import load_model
 from mtabn.metrics import MultitaskConfusionMatrix
 from mtabn.attention import save_celeba_attention_map
 from mtabn.utils import load_checkpoint, load_args
