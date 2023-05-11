@@ -1,7 +1,11 @@
 
 *.pyc
 __pycache__/
+.hypothesis/
 
+TODO.md
+
+tmp/
 trash/
 
 script_abci/

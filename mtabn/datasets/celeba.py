@@ -62,6 +62,21 @@ CELEBA_TRAIN_RGB_MEAN = (0.5063454195744012, 0.42580961977997583, 0.383186726159
 CELEBA_TRAIN_RGB_STD  = (0.310506447934692, 0.2903443482746604, 0.2896806573348839)
 
 
+### NOTE: Prior distribution of attributes on training set
+#   this attribute order is based on list_attr_celeba.txt.
+#   Please do NOT change.
+CELEBA_FREQUENCY_HISTOGRAM = [
+    0.0123710623010993, 0.02945452183485031, 0.056899264454841614, 0.022649994120001793, 0.0025270262267440557,
+    0.01680033467710018, 0.026687927544116974, 0.026094455271959305, 0.02647898718714714, 0.01651584729552269,
+    0.005691083613783121, 0.02259010262787342, 0.0159162487834692, 0.006390048190951347, 0.005152737721800804,
+    0.007160474546253681, 0.00703524611890316, 0.004693340510129929, 0.04257423058152199, 0.050121963024139404,
+    0.046457670629024506, 0.05341669172048569, 0.00452047074213624, 0.012842030264437199, 0.0924096629023552,
+    0.03137582540512085, 0.004767524544149637, 0.030521685257554054, 0.008874878287315369, 0.007163196802139282,
+    0.006231470964848995, 0.05314037203788757, 0.023103946819901466, 0.03537836670875549, 0.0206640362739563,
+    0.005471253301948309, 0.052022166550159454, 0.01345115713775158, 0.008092200383543968, 0.08629049360752106
+]
+
+
 ### NOTE: transforms for image data
 #   We do not know optimal transforms for obtaining clear attention maps...
 CELEBA_TRANS_TRAIN = transforms.Compose([
@@ -79,6 +94,14 @@ CELEBA_TRANS_EVAL = transforms.Compose([
 #   Therefore, please see official document and source code for more details.
 
 
+def get_celeba_frequency_histogram(dataset, normalize=True):
+    _hist = torch.sum(dataset.attr, dim=0)
+    if normalize:
+        return _hist / torch.sum(_hist)
+    else:
+        return _hist
+
+
 if __name__ == '__main__':
 
     #######################################################
@@ -93,10 +116,21 @@ if __name__ == '__main__':
     # ./figure/celeba_dataloader_check_006: adjust params. from 005 settings
     #######################################################
 
+    import torch
     from torchvision.datasets import CelebA
     from torchvision import transforms
 
-    DATA_ROOT = "/raid/hirakawa/dataset"
+    DATA_ROOT = "../../data"
+
+    tmp_trans = transforms.Compose([
+        transforms.RandomResizedCrop(224),
+        transforms.RandomHorizontalFlip(),
+        transforms.ToTensor()
+    ])
+
+    tmp_dataset = CelebA(root=DATA_ROOT, split='train', target_type='attr', transform=tmp_trans, download=False)
+    freq_hist = get_celeba_frequency_histogram(tmp_dataset)
+    print(freq_hist)
 
     # remove Normalize for visualizing augmentation result
     trans1 = transforms.Compose([

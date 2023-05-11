@@ -70,18 +70,18 @@ For more detailed settings, please check below in `./mtabn/datasets/celeba.py`.
 ---
 ## 2. Network Models
 
-### Fukui's implementation
+### Fukui's implementation ([ABN_CelebA](https://github.com/machine-perception-robotics-group/ABN_CelebA))
 * There is NO residual attetntion.
 * There is NO sigmoid function before calculating an attention map.
 * The number of out_channels of output layers in the perception branch is 2.
     * The loss function for attention branch is BinaryCrossEntropy (Chainer impl.) / BCELossWithLogits (PyTorch impl.).
     * The loss function for perception branch is SoftmaxCrossEntropy (Chainer impl.) / CrossEntropyLoss (PyTorch impl.).
 
-### Mitsuhara's implementation
+### Mitsuhara's implementation([ABN_CelebA_PyTorch tag:v0.1](https://github.com/machine-perception-robotics-group/MultitaskABN/tree/v0.1))
 * There is a residual attention.
 * There is a sigmoid function before calculating an attention map.
 * The number of out_channels of ouput layers in the perception branch is 1.
-    * THe loss function for both branch is BCELoss (PyTorch impl.).
+    * The loss function for both branch is BCELoss (PyTorch impl.).
 
 ### The updated implementation
 
