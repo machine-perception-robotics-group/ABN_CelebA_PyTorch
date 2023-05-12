@@ -5,15 +5,17 @@
 import torch.nn as nn
 from .resnet_mtabn_v1 import mtabn_v1_resnet18, mtabn_v1_resnet34, mtabn_v1_resnet50, mtabn_v1_resnet101, mtabn_v1_resnet152
 from .resnet_mtabn_v2 import mtabn_v2_resnet18, mtabn_v2_resnet34, mtabn_v2_resnet50, mtabn_v2_resnet101, mtabn_v2_resnet152
+from .resnet_mtabn_v3 import mtabn_v3_resnet18, mtabn_v3_resnet34, mtabn_v3_resnet50, mtabn_v3_resnet101, mtabn_v3_resnet152
 from torchvision.models import resnet18, resnet34, resnet50, resnet101, resnet152
 
 
 MODEL_NAMES_RESNET = ('resnet18', 'resnet34', 'resnet50', 'resnet101', 'resnet152')
 MODEL_NAMES_MTABN_V1_RESNET = ('mtabn_v1_resnet18', 'mtabn_v1_resnet34', 'mtabn_v1_resnet50', 'mtabn_v1_resnet101', 'mtabn_v1_resnet152')
 MODEL_NAMES_MTABN_V2_RESNET = ('mtabn_v2_resnet18', 'mtabn_v2_resnet34', 'mtabn_v2_resnet50', 'mtabn_v2_resnet101', 'mtabn_v2_resnet152')
+MODEL_NAMES_MTABN_V3_RESNET = ('mtabn_v3_resnet18', 'mtabn_v3_resnet34', 'mtabn_v3_resnet50', 'mtabn_v3_resnet101', 'mtabn_v3_resnet152')
 
 
-MODEL_NAMES = MODEL_NAMES_RESNET + MODEL_NAMES_MTABN_V1_RESNET + MODEL_NAMES_MTABN_V2_RESNET
+MODEL_NAMES = MODEL_NAMES_RESNET + MODEL_NAMES_MTABN_V1_RESNET + MODEL_NAMES_MTABN_V2_RESNET + MODEL_NAMES_MTABN_V3_RESNET
 
 
 def load_model(model_name, num_classes, residual_attention, pretrained=True):
@@ -45,6 +47,7 @@ def load_model(model_name, num_classes, residual_attention, pretrained=True):
         model = resnet152(pretrained=pretrained)
         _in_features = model.fc.in_features
         model.fc = nn.Linear(in_features=_in_features, out_features=num_classes, bias=True)
+    
     ### Multitask ABN V1
     elif model_name == 'mtabn_v1_resnet18':
         model = mtabn_v1_resnet18(pretrained=pretrained, num_classes=num_classes, residual_attention=residual_attention)
@@ -56,6 +59,7 @@ def load_model(model_name, num_classes, residual_attention, pretrained=True):
         model = mtabn_v1_resnet101(pretrained=pretrained, num_classes=num_classes, residual_attention=residual_attention)
     elif model_name == 'mtabn_v1_resnet152':
         model = mtabn_v1_resnet152(pretrained=pretrained, num_classes=num_classes, residual_attention=residual_attention)
+    
     ### Multitask ABN V2
     elif model_name == 'mtabn_v2_resnet18':
         model = mtabn_v2_resnet18(pretrained=pretrained, num_classes=num_classes, residual_attention=residual_attention)
@@ -67,5 +71,17 @@ def load_model(model_name, num_classes, residual_attention, pretrained=True):
         model = mtabn_v2_resnet101(pretrained=pretrained, num_classes=num_classes, residual_attention=residual_attention)
     elif model_name == 'mtabn_v2_resnet152':
         model = mtabn_v2_resnet152(pretrained=pretrained, num_classes=num_classes, residual_attention=residual_attention)
+    
+    ### Multitask ABN V3
+    elif model_name == 'mtabn_v3_resnet18':
+        model = mtabn_v3_resnet18(pretrained=pretrained, num_classes=num_classes, residual_attention=residual_attention)
+    elif model_name == 'mtabn_v3_resnet34':
+        model = mtabn_v3_resnet34(pretrained=pretrained, num_classes=num_classes, residual_attention=residual_attention)
+    elif model_name == 'mtabn_v3_resnet50':
+        model = mtabn_v3_resnet50(pretrained=pretrained, num_classes=num_classes, residual_attention=residual_attention)
+    elif model_name == 'mtabn_v3_resnet101':
+        model = mtabn_v3_resnet101(pretrained=pretrained, num_classes=num_classes, residual_attention=residual_attention)
+    elif model_name == 'mtabn_v3_resnet152':
+        model = mtabn_v3_resnet152(pretrained=pretrained, num_classes=num_classes, residual_attention=residual_attention)
 
     return model

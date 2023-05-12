@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 
+import torch
 from torchvision import transforms
 
 
@@ -116,7 +117,6 @@ if __name__ == '__main__':
     # ./figure/celeba_dataloader_check_006: adjust params. from 005 settings
     #######################################################
 
-    import torch
     from torchvision.datasets import CelebA
     from torchvision import transforms
 
