@@ -70,7 +70,7 @@ def weighted_binary_focal_loss_with_logits(
         alpha_t = alpha * targets + (1 - alpha) * (1 - targets)
         loss = alpha_t * loss
 
-    loss = torch.mul(torch.exp(-weight), loss)
+    loss = torch.mul(weight, loss)
 
     if reduction == "none":
         pass

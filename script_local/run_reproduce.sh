@@ -87,3 +87,24 @@ python3 eval_celeba_mtabn_v3.py --data_root ./data \
     --resume checkpoint-final.pt \
     --gpu_id 1
 
+
+
+#################################################
+# Hirakawa original experiment
+# (ABN V3, no residual attention, fine-tuning, weighted focal loss)
+#################################################
+
+# training
+python3 train_celeba_wfl_norm.py --data_root ./data \
+    --model mtabn_v3_resnet101 --pretrained \
+    --logdir ./runs_reproduce/wfl_norm \
+    --gpu_id 0
+
+# evaluation
+python3 eval_celeba_mtabn_v3.py --data_root ./data \
+    --logdir ./runs_reproduce/wfl_norm \
+    --no_eval_train --no_eval_val \
+    --save_attention --attention_type pos \
+    --resume checkpoint-final.pt \
+    --gpu_id 1
+

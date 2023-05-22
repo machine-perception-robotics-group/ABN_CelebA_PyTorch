@@ -133,7 +133,7 @@ def main():
         residual_attention=args.residual_attention, pretrained=args.pretrained
     )
     freq_hist = get_celeba_frequency_histogram(train_dataset)
-    criterion_bce = WeightedBFLossWithLogits(weight=freq_hist, alpha=args.alpha, gamma=args.gamma)
+    criterion_bce = WeightedBFLossWithLogits(freq_hist=freq_hist, alpha=args.alpha, gamma=args.gamma)
 
     # optimizer ###########################################
     optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum, weight_decay=args.wd, nesterov=args.use_nesterov)

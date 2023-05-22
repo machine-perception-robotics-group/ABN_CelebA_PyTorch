@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 
+import torch
 from torch.nn import Module
 from .. import functional as F
 
@@ -31,10 +32,14 @@ class BFLossWithLogits(Module):
 class WeightedBFLossWithLogits(Module):
     """Weighted Binary Focal Loss with Logits"""
 
-    def __init__(self, weight: Tensor, alpha: float = -1, gamma: float = 2, reduction: str = 'mean') -> None:
+    def __init__(self, freq_hist: Tensor, alpha: float = -1, gamma: float = 2, reduction: str = 'mean') -> None:
         super().__init__()
-        self.register_buffer('weight', weight)
+
+        _weight = torch.exp(-freq_hist)
+        _weight = _weight * (_weight.size(0) / torch.sum(_weight))
+        self.register_buffer('weight', _weight)
         self.weight: Optional[Tensor]
+
         self.alpha = alpha
         self.gamma = gamma
         self.reduction = reduction
