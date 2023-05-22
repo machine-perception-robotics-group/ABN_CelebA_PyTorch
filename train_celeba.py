@@ -23,8 +23,9 @@ from torch.utils.tensorboard.writer import SummaryWriter
 
 from torchvision.datasets import CelebA
 
-from mtabn.datasets.celeba import CELEBA_TRANS_TRAIN, CELEBA_TRANS_EVAL, CELEBA_NUM_CLASSES, CELEBA_ATTRIBUTE_NAMES
+from mtabn.datasets.celeba import CELEBA_TRANS_TRAIN, CELEBA_TRANS_EVAL, CELEBA_NUM_CLASSES, CELEBA_ATTRIBUTE_NAMES, get_celeba_frequency_histogram
 from mtabn.models import load_model, MODEL_NAMES
+from mtabn.nn import WeightedBFLossWithLogits
 from mtabn.metrics import MultitaskConfusionMatrix
 from mtabn.utils import load_checkpoint, save_checkpoint, save_args, load_args
 
@@ -55,6 +56,11 @@ def parser():
     arg_parser.add_argument('--use_nesterov', action='store_true', help='use nesterov accelerated SGD')
     arg_parser.add_argument('--num_workers', type=int, default=8, help='the number of multiprocess workers for data loader')
 
+    ### weighted focal loss settings
+    arg_parser.add_argument('--use_wfl', action='store_true', help='use weighted focal loss')
+    arg_parser.add_argument('--alpha', type=float, default=-1, help='alpha parameter of weighted focal loss')
+    arg_parser.add_argument('--gamma', type=float, default=2, help='gamma parameter of weighted focal loss')
+
     ### resume settings
     arg_parser.add_argument('--resume', type=str, default=None, help='filename of checkpoint for resuming the training')
 
@@ -83,6 +89,9 @@ def parser():
         args.momentum     = _resume_args['momentum']
         args.wd           = _resume_args['wd']
         args.use_nesterov = _resume_args['use_nesterov']
+        args.use_wfl      = _resume_args['use_wfl']
+        args.alpha        = _resume_args['alpha']
+        args.gamma        = _resume_args['gamma']
         args.seed         = _resume_args['seed']
 
     return args
@@ -127,7 +136,11 @@ def main():
         model_name=args.model, num_classes=CELEBA_NUM_CLASSES,
         residual_attention=args.residual_attention, pretrained=args.pretrained
     )
-    criterion_bce = nn.BCEWithLogitsLoss()
+    if args.use_wfl:
+        freq_hist = get_celeba_frequency_histogram(train_dataset)
+        criterion_bce = WeightedBFLossWithLogits(freq_hist=freq_hist, alpha=args.alpha, gamma=args.gamma)
+    else:
+        criterion_bce = nn.BCEWithLogitsLoss()
 
     # optimizer ###########################################
     optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum, weight_decay=args.wd, nesterov=args.use_nesterov)

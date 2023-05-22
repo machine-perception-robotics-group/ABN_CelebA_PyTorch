@@ -14,12 +14,13 @@ If you want to use or re-produce the original ABN paper at CVPR, please use [the
 
 ![examples](./figure/att_type_pos.jpg)
 
-### Change Log
-* 09 Jun 2019: (different repository) The first release of Multitask ABN implemented by Chainer. You can find [here](https://github.com/machine-perception-robotics-group/ABN_CelebA).
-* 11 Dec 2020: (this repository) Implement MultitaskABN with PyTorch. We also improve the network architecture from the original Chainer implementation to achieve better results. You can find at [tag:v0.1](https://github.com/machine-perception-robotics-group/MultitaskABN/tree/v0.1).
-* xx Jul 2022: (this repository) Updated PyTorch implementation for newer PyTorch version (torch 1.11.0).
+### 1.1. Change Log
+* 09 Jun 2019: The first release of Multitask ABN implemented by Chainer. You can find [here (different repository)](https://github.com/machine-perception-robotics-group/ABN_CelebA).
+* 11 Dec 2020: Implement MultitaskABN with PyTorch. We also improve the network architecture from the original Chainer implementation to achieve better results. You can find at [tag:v0.1](https://github.com/machine-perception-robotics-group/MultitaskABN/tree/v0.1).
+* 15 Jul 2022: Updated PyTorch implementation for PyTorch 1.11.0. We reproduce [the original implementation](https://github.com/machine-perception-robotics-group/ABN_CelebA) by PyTorch. You can find at [tag:v1.0](https://github.com/machine-perception-robotics-group/ABN_CelebA_PyTorch/tree/v1.0).
+* xx May 2023: Updated PyTorch implementation for PyTorch 2.1.0. We modify network structure (output shape of perception branch for using BCELossWithLogits). And, we added Weighted Focal Loss [1].
 
-### Citation
+### 1.2. Citation
 If you find this repository is useful, please cite the following reference.
 
 ```bibtex
@@ -102,11 +103,22 @@ We show examples of each attention type.
 We publish pre-trained models.
 Please download from the following link.
 
-* [V1, ResNet-101, NO residual attention, fine-tuning (reproducing original Chainer model)](https://drive.google.com/file/d/1U3edI1ml88akuikKFmz4cYGSR5MOdtmt/view?usp=sharing)
+**NOTE**
+
+We have prepared he pre-trained models for each versions (see 1.1 Change Log for the details).
+Please download appropriate one.
+
+* [V1, ResNet-101, NO residual attention, fine-tuning](https://drive.google.com/file/d/18oy-0S4EYmp3ySVi30zW8lmoZsMPXYxT/view?usp=share_link)
 
 
 ---
-## 5. Related Links
+## 5. References
+
+1. N. Sarafianos, et al., "Deep Imbalanced Attribute Classification using Visual Attention Aggregation," in ECCV, 2018.
+
+
+---
+## 6. Related Links
 
 ### Web Pages
 
