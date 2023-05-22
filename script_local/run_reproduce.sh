@@ -54,13 +54,14 @@ python3 eval_celeba.py --data_root ./data \
 #################################################
 
 # training
-python3 train_celeba_wfl.py --data_root ./data \
+python3 train_celeba.py --data_root ./data \
     --model mtabn_v3_resnet101 --pretrained \
+    --use_wfl \
     --logdir ./runs_reproduce/wfl \
     --gpu_id 1
 
 # evaluation
-python3 eval_celeba_mtabn_v3.py --data_root ./data \
+python3 eval_celeba.py --data_root ./data \
     --logdir ./runs_reproduce/wfl \
     --no_eval_train --no_eval_val \
     --save_attention --attention_type pos \
