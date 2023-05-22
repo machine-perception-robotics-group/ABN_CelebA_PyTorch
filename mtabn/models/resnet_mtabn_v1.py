@@ -121,7 +121,7 @@ class MtABNResNetV1(nn.Module):
 
         # perception branch -----------
         self.layer4 = self._make_layer(block, 512, layers[3], stride=2, down_size=True)
-        _output_per = [nn.Linear(512*block.expansion, 2) for _ in range(num_classes)]
+        _output_per = [nn.Linear(512*block.expansion, 1) for _ in range(num_classes)]
         self.output_per = nn.ModuleList(_output_per)
 
         # attention branch ------------
@@ -181,7 +181,7 @@ class MtABNResNetV1(nn.Module):
             x_per = self.output_per[i](x_per)
             out_per.append(x_per)
 
-        out_per = torch.stack(out_per).permute(1, 2, 0)
+        out_per = torch.stack(out_per).permute(1, 2, 0).squeeze(dim=1)
 
         return out_per, out_att, attention_map
 

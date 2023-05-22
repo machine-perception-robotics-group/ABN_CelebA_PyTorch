@@ -137,7 +137,7 @@ def evaluation(model, data_loader, result_dir_name, args, is_abn):
             # binarize output
             label = label.data
             if is_abn:
-                mt_conf_mat_per.update(label_trues=label, label_preds=torch.argmax(output[0], dim=1), use_cuda=True)
+                mt_conf_mat_per.update(label_trues=label, label_preds=output[0], use_cuda=True)
                 mt_conf_mat_att.update(label_trues=label, label_preds=output[1], use_cuda=True)
             else:
                 mt_conf_mat_per.update(label_trues=label, label_preds=torch.sigmoid(output), use_cuda=True)
@@ -147,7 +147,7 @@ def evaluation(model, data_loader, result_dir_name, args, is_abn):
                 att_maps = output[2].cpu().data.numpy()  # [batch, attribute, height, width]
                 for _i_idx in range(image.shape[0]):
                     save_celeba_attention_map(
-                        image[_i_idx], att_maps[_i_idx], label[_i_idx], torch.argmax(output[0], dim=1)[_i_idx], output[1][_i_idx],
+                        image[_i_idx], att_maps[_i_idx], label[_i_idx], output[0][_i_idx], output[1][_i_idx],
                         os.path.join(result_dir, "%06d.jpg" % image_counter), att_type=args.attention_type
                     )
                     image_counter += 1

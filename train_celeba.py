@@ -37,7 +37,7 @@ def parser():
     arg_parser = ArgumentParser(add_help=True)
 
     ### network settings
-    arg_parser.add_argument('--model', type=str, default='mtabn_v2_resnet50', choices=MODEL_NAMES, help='network model')
+    arg_parser.add_argument('--model', type=str, default='mtabn_v1_resnet101', choices=MODEL_NAMES, help='network model')
     arg_parser.add_argument('--residual_attention', action='store_true', help='use residual attention mechanism')
     arg_parser.add_argument('--pretrained', action='store_true', help='use pretrained network model as initial parameter')
 
@@ -128,7 +128,6 @@ def main():
         residual_attention=args.residual_attention, pretrained=args.pretrained
     )
     criterion_bce = nn.BCEWithLogitsLoss()
-    criterion_ce = nn.CrossEntropyLoss()
 
     # optimizer ###########################################
     optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum, weight_decay=args.wd, nesterov=args.use_nesterov)
@@ -137,7 +136,6 @@ def main():
     # CPU or GPU
     model = nn.DataParallel(model).cuda()
     criterion_bce = criterion_bce.cuda()
-    criterion_ce = criterion_ce.cuda()
     cudnn.benchmark = True
 
     initial_epoch = 1
@@ -173,7 +171,7 @@ def main():
             output = model(image)
 
             if _is_abn:
-                loss_per = criterion_ce(output[0], label.to(torch.long))
+                loss_per = criterion_bce(output[0], label)
                 loss_att = criterion_bce(output[1], label)
                 loss = loss_per + loss_att
             else:
@@ -211,7 +209,7 @@ def main():
                 # binarize output
                 label = label.data
                 if _is_abn:
-                    mt_conf_mat_per.update(label_trues=label, label_preds=torch.argmax(output[0], dim=1), use_cuda=True)
+                    mt_conf_mat_per.update(label_trues=label, label_preds=torch.sigmoid(output[0]), use_cuda=True)
                     mt_conf_mat_att.update(label_trues=label, label_preds=torch.sigmoid(output[1]), use_cuda=True)
                 else:
                     mt_conf_mat_per.update(label_trues=label, label_preds=torch.sigmoid(output), use_cuda=True)
